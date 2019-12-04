@@ -1,0 +1,5 @@
+i 0x400400AC 4 Instruction Fetch
+i 0x400400BO 4 Instruction Fetch
+r 0x40000100 2 Load (Halfword)
+i 0x400400B4 4 Instruction Fetch
+w 0x40000102 1 Store (Byte)
