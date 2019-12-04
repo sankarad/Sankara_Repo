@@ -1,0 +1,194 @@
+LEX 18 - Thursday April 12
+
+OVERVIEW
+--------
+In this lab exercise you will be working with the memcheck tool from
+the valgrind suite.  In class yesterday we explored several errors
+that memcheck can detect, and discussed what code problems can give
+rise to them.  In this exercise you get to explore memory problems in
+some code, with the goal being to resolve them.
+
+The exercise is split into two parts, partA and partB.  The code for
+each part is its own directory.  Start with partA and then move on to
+partB.
+
+Apply good development and debugging practices, including use of a
+repo in BitBucket and branching as appropriate.  When you run
+valgrind, use either of these forms:
+
+	  valgrind --tool=memcheck --leak-check=yes -v ./main 
+	  valgrind --tool=memcheck --leak-check=yes ./main 
+
+You may incorporate these into targets in the makefiles to make
+running the code easier.
+
+
+PART A
+------
+ 
+The first thing to do is to compile and run the code:
+
+    make main
+    ./main
+
+What output is produced?
+
+RESPONSE 1:
+
+
+Run the exectuable using valgrind:
+
+    valgrind --tool=memcheck --leak-check=yes ./main 
+
+Study the section of the output dealing with memory leaks.  You should
+see a table like that looks like this:
+
+==31698== LEAK SUMMARY:
+==31698==    definitely lost: 0 bytes in 0 blocks
+==31698==    indirectly lost: 0 bytes in 0 blocks
+==31698==      possibly lost: 0 bytes in 0 blocks
+==31698==    still reachable: 0 bytes in 0 blocks
+==31698==         suppressed: 0 bytes in 0 blocks
+
+Your table should have some non-zero byte and block counts.  Show your
+table here:
+
+RESPONSE 2:
+
+
+Explain, in your own words, what the non-zerp byte and block counts
+refer to.  You may consult the valgrind documentation
+(e.g. http://valgrind.org/docs/manual/faq.html#faq.deflost).  Do not
+simply copy text from the documentation - rephrase using your own
+words.
+
+RESPONSE 3:
+
+
+You will notice in the IntList.c file that the function deleteIntList
+has an empty definition.  Define this function so that it deletes the
+IntList it points to (including the IntNodes that it contains).
+
+After you define this function, check the LEAK SUMMARY again
+(reproducing the results below):
+
+RESPONSE 4:
+
+
+You may find memory is still being leaked.  Do your best to get down
+to zero memory leaks.  If you have not eliminated the leaks by the
+midpoint of the lab, give your last LEAK SUMMARY report, and continue
+with Part B.
+
+
+PART B
+------
+  
+The first thing to do is to compile and run the code:
+
+    make main
+    ./main
+
+What output is produced?
+
+RESPONSE 5:
+
+
+Run the exectuable using valgrind:
+
+    valgrind --tool=memcheck --leak-check=yes ./main 
+
+Study the section of the output dealing with memory leaks.  You should
+see a table like that looks like this:
+
+==31698== LEAK SUMMARY:
+==31698==    definitely lost: 0 bytes in 0 blocks
+==31698==    indirectly lost: 0 bytes in 0 blocks
+==31698==      possibly lost: 0 bytes in 0 blocks
+==31698==    still reachable: 0 bytes in 0 blocks
+==31698==         suppressed: 0 bytes in 0 blocks
+
+Your table should have some non-zero byte and block counts.  Show your
+table here:
+
+RESPONSE 6:
+
+
+In this part you will notice, in the StringList.c file, that the
+function deleteStringList has a definition.  However, it may not be
+correct and complete.  Don't change it for now (that comes later), but
+for now notice that in main.c there are three commented out calls to
+this function, as in:
+
+  /* DELETE #1 */
+  //  deleteStringList(evenStrings);
+
+Comment in the first call, labelled with /* DELETE #1 */, then
+recompile and rerun memcheck:
+
+    make clean
+    make main
+    valgrind --tool=memcheck --leak-check=yes ./main 
+
+Show your LEAK SUMMARY table here:
+
+RESPONSE 7:
+    
+
+Do the same with the call labelled with /* DELETE #2 */.  Show your LEAK SUMMARY table here:
+
+RESPONSE 8:
+    
+
+Do the same with the call labelled with /* DELETE #3 */.  Show your LEAK SUMMARY table here:
+
+RESPONSE 9:
+    
+
+
+deleteStringList does not delete the StringList struct that getRest
+creates.  Modify deleteStringList so it also deletes this structure.
+Give your revised definition here:
+
+RESPONSE 10:
+    
+
+Recompile, show your LEAK SUMMARY table here:
+
+RESPONSE 11:
+    
+
+
+OK - now let's think about another aspect to what this function could
+do: should deleteStringList also delete the data (the strings) the
+list holds?  Notice that this is a little problematic as allStrings
+shares contents with boththe evenStrings list and the oddStrings list.
+
+Define deleteStringList so it also deletes the strings contained in
+the list, not just the list structure.  Recompile, show your LEAK
+SUMMARY table here:
+
+RESPONSE 12:
+    
+
+
+Does this change cause other problems in the code (e.g. unintended
+output, or read/write errors reported by valgrind?)
+
+
+RESPONSE 13:
+
+
+You may find memory is still being leaked.  Do your best to get down
+to zero memory leaks.  If you have not eliminated the leaks by the
+endpoint of the lab, give your last LEAK SUMMARY report, zip and
+submit.   Also be sure to commit and push to your Bitbucket repo.
+
+RESPONSE 14:
+
+
+That's it - well done!
+
+------------------------------------------------------------------------
+END
+------------------------------------------------------------------------

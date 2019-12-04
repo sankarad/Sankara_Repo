@@ -1,0 +1,328 @@
+LEX 18 - Thursday April 12
+
+OVERVIEW
+--------
+In this lab exercise you will be working with the memcheck tool from
+the valgrind suite.  In class yesterday we explored several errors
+that memcheck can detect, and discussed what code problems can give
+rise to them.  In this exercise you get to explore memory problems in
+some code, with the goal being to resolve them.
+
+The exercise is split into two parts, partA and partB.  The code for
+each part is its own directory.  Start with partA and then move on to
+partB.
+
+Apply good development and debugging practices, including use of a
+repo in BitBucket and branching as appropriate.  When you run
+valgrind, use either of these forms:
+
+	  valgrind --tool=memcheck --leak-check=yes -v ./main 
+	  valgrind --tool=memcheck --leak-check=yes ./main 
+
+You may incorporate these into targets in the makefiles to make
+running the code easier.
+
+
+PART A
+------
+ 
+The first thing to do is to compile and run the code:
+
+    make main
+    ./main
+
+What output is produced?
+
+RESPONSE 1:
+
+Inserting 0 into [ ]
+Inserting 1 into [ 0 ]
+Inserting 2 into [ 1 0 ]
+Inserting 3 into [ 2 1 0 ]
+Inserting 4 into [ 3 2 1 0 ]
+Inserting 5 into [ 4 3 2 1 0 ]
+Inserting 6 into [ 5 4 3 2 1 0 ]
+Inserting 7 into [ 6 5 4 3 2 1 0 ]
+Inserting 8 into [ 7 6 5 4 3 2 1 0 ]
+Inserting 9 into [ 8 7 6 5 4 3 2 1 0 ]
+[ 9 8 7 6 5 4 3 2 1 0 ] has size 10
+
+
+Run the exectuable using valgrind:
+
+    valgrind --tool=memcheck --leak-check=yes ./main 
+
+Study the section of the output dealing with memory leaks.  You should
+see a table like that looks like this:
+
+==31698== LEAK SUMMARY:
+==31698==    definitely lost: 0 bytes in 0 blocks
+==31698==    indirectly lost: 0 bytes in 0 blocks
+==31698==      possibly lost: 0 bytes in 0 blocks
+==31698==    still reachable: 0 bytes in 0 blocks
+==31698==         suppressed: 0 bytes in 0 blocks
+
+Your table should have some non-zero byte and block counts.  Show your
+table here:
+
+RESPONSE 2:
+
+==4304== LEAK SUMMARY:
+==4304==    definitely lost: 528 bytes in 66 blocks
+==4304==    indirectly lost: 160 bytes in 10 blocks
+==4304==      possibly lost: 0 bytes in 0 blocks
+==4304==    still reachable: 0 bytes in 0 blocks
+==4304==         suppressed: 0 bytes in 0 blocks
+==4304== 
+
+
+
+Explain, in your own words, what the non-zerp byte and block counts
+refer to.  You may consult the valgrind documentation
+(e.g. http://valgrind.org/docs/manual/faq.html#faq.deflost).  Do not
+simply copy text from the documentation - rephrase using your own
+words.
+
+RESPONSE 3:
+
+The leak summary at 'definitely lost' indicates that 66 blocks in
+ your memory are not being reached here is no pointer or 
+chain of pointers to the leaked memory block totalling 528 bytes.
+Indefinitely lost states that there is a valid
+pointer but in 10 blocks but it is linked to another block
+ which is directly lost totalling 160 bytes.
+
+
+You will notice in the IntList.c file that the function deleteIntList
+has an empty definition.  Define this function so that it deletes the
+IntList it points to (including the IntNodes that it contains).
+
+After you define this function, check the LEAK SUMMARY again
+(reproducing the results below):
+
+RESPONSE 4:
+
+==7055== LEAK SUMMARY:
+==7055==    definitely lost: 536 bytes in 66 blocks
+==7055==    indirectly lost: 144 bytes in 9 blocks
+==7055==      possibly lost: 0 bytes in 0 blocks
+==7055==    still reachable: 0 bytes in 0 blocks
+==7055==         suppressed: 0 bytes in 0 blocks
+==7055== 
+
+ HEAP SUMMARY:
+==9467==     in use at exit: 0 bytes in 0 blocks
+==9467==   total heap usage: 76 allocs, 163 frees, 688 bytes allocated
+==9467== 
+==9467== All heap blocks were freed -- no leaks are possible
+
+While achieving this through freeing up of memory around the code, realising
+this was an error attempts were made to specify functionality within
+the delet function. It was not made clear that other aspects of the code were
+off limits.
+
+==19104== LEAK SUMMARY:
+==19104==    definitely lost: 520 bytes in 65 blocks
+==19104==    indirectly lost: 0 bytes in 0 blocks
+==19104==      possibly lost: 0 bytes in 0 blocks
+==19104==    still reachable: 168 bytes in 11 blocks
+==19104==         suppressed: 0 bytes in 0 blocks
+
+
+
+You may find memory is still being leaked.  Do your best to get down
+to zero memory leaks.  If you have not eliminated the leaks by the
+midpoint of the lab, give your last LEAK SUMMARY report, and continue
+with Part B.
+
+
+PART B
+------
+  
+The first thing to do is to compile and run the code:
+
+    make main
+    ./main
+
+What output is produced?
+
+RESPONSE 5:
+
+"Buffy" = "Buffy"
+"Xander" = "Xander"
+"Willow" = "Willow"
+"Cordelia" = "Cordelia"
+"Rupert" = "Rupert"
+"Oz" = "Oz"
+"Spike" = "Spike"
+"Rupert" = "Rupert"
+"Dawn" = "Dawn"
+"Tara" = "Tara"
+"Angel" = "Angel"
+Inserting "Buffy" into [ ]
+Inserting "Xander" into [ "Buffy" ]
+Inserting "Willow" into [ "Xander" "Buffy" ]
+Inserting "Cordelia" into [ "Willow" "Xander" "Buffy" ]
+Inserting "Rupert" into [ "Cordelia" "Willow" "Xander" "Buffy" ]
+Inserting "Oz" into [ "Rupert" "Cordelia" "Willow" "Xander" "Buffy" ]
+Inserting "Spike" into [ "Oz" "Rupert" "Cordelia" "Willow" "Xander" "Buffy" ]
+Inserting "Rupert" into [ "Spike" "Oz" "Rupert" "Cordelia" "Willow" "Xander" "Buffy" ]
+Inserting "Dawn" into [ "Rupert" "Spike" "Oz" "Rupert" "Cordelia" "Willow" "Xander" "Buffy" ]
+Inserting "Tara" into [ "Dawn" "Rupert" "Spike" "Oz" "Rupert" "Cordelia" "Willow" "Xander" "Buffy" ]
+Inserting "Angel" into [ "Tara" "Dawn" "Rupert" "Spike" "Oz" "Rupert" "Cordelia" "Willow" "Xander" "Buffy" ]
+Inserting "Buffy" into [ ]
+Inserting "Willow" into [ "Buffy" ]
+Inserting "Rupert" into [ "Willow" "Buffy" ]
+Inserting "Spike" into [ "Rupert" "Willow" "Buffy" ]
+Inserting "Dawn" into [ "Spike" "Rupert" "Willow" "Buffy" ]
+Inserting "Angel" into [ "Dawn" "Spike" "Rupert" "Willow" "Buffy" ]
+Inserting "Xander" into [ ]
+Inserting "Cordelia" into [ "Xander" ]
+Inserting "Oz" into [ "Cordelia" "Xander" ]
+Inserting "Rupert" into [ "Oz" "Cordelia" "Xander" ]
+Inserting "Tara" into [ "Rupert" "Oz" "Cordelia" "Xander" ]
+Before "Spike" to "SpIke" and other edits
+[ "Angel" "Tara" "Dawn" "Rupert" "Spike" "Oz" "Rupert" "Cordelia" "Willow" "Xander" "Buffy" ] has size 11
+[ "Angel" "Dawn" "Spike" "Rupert" "Willow" "Buffy" ] has size 6
+[ "Tara" "Rupert" "Oz" "Cordelia" "Xander" ] has size 5
+After "Spike" to "SpIke" and other edits
+[ "Angel" "Dawn" "SpIke" "Rupert" "Willow" "Buffy" ] has size 6
+[ "Tara" "Rupert" "AU" "Cordelia" "Xander" ] has size 5
+[ "Angel" "Tara" "Dawn" "Rupert" "SpIke" "AU" "Rupert" "Cordelia" "Willow" "Xander" "Buffy" ] has size 11
+
+
+
+Run the exectuable using valgrind:
+
+    valgrind --tool=memcheck --leak-check=yes ./main 
+
+Study the section of the output dealing with memory leaks.  You should
+see a table like that looks like this:
+
+==31698== LEAK SUMMARY:
+==31698==    definitely lost: 0 bytes in 0 blocks
+==31698==    indirectly lost: 0 bytes in 0 blocks
+==31698==      possibly lost: 0 bytes in 0 blocks
+==31698==    still reachable: 0 bytes in 0 blocks
+==31698==         suppressed: 0 bytes in 0 blocks
+
+Your table should have some non-zero byte and block counts.  Show your
+table here:
+
+RESPONSE 6:
+
+==11411== LEAK SUMMARY:
+==11411==    definitely lost: 1,368 bytes in 171 blocks
+==11411==    indirectly lost: 420 bytes in 33 blocks
+==11411==      possibly lost: 0 bytes in 0 blocks
+==11411==    still reachable: 0 bytes in 0 blocks
+==11411==         suppressed: 0 bytes in 0 blocks
+==11411== 
+
+In this part you will notice, in the StringList.c file, that the
+function deleteStringList has a definition.  However, it may not be
+correct and complete.  Don't change it for now (that comes later), but
+for now notice that in main.c there are three commented out calls to
+this function, as in:
+
+  /* DELETE #1 */
+  //  deleteStringList(evenStrings);
+
+Comment in the first call, labelled with /* DELETE #1 */, then
+recompile and rerun memcheck:
+
+    make clean
+    make main
+    valgrind --tool=memcheck --leak-check=yes ./main 
+
+Show your LEAK SUMMARY table here:
+
+RESPONSE 7:
+LEAK SUMMARY:
+==12026==    definitely lost: 1,368 bytes in 171 blocks
+==12026==    indirectly lost: 324 bytes in 27 blocks
+==12026==      possibly lost: 0 bytes in 0 blocks
+==12026==    still reachable: 0 bytes in 0 blocks
+==12026==         suppressed: 0 bytes in 0 blocks
+    
+
+
+
+Do the same with the call labelled with /* DELETE #2 */.  Show your LEAK SUMMARY table here:
+
+RESPONSE 8:
+==12283== LEAK SUMMARY:
+==12283==    definitely lost: 1,368 bytes in 171 blocks
+==12283==    indirectly lost: 244 bytes in 22 blocks
+==12283==      possibly lost: 0 bytes in 0 blocks
+==12283==    still reachable: 0 bytes in 0 blocks
+==12283==         suppressed: 0 bytes in 0 blocks
+==12283== 
+
+    
+
+Do the same with the call labelled with /* DELETE #3 */.  Show your LEAK SUMMARY table here:
+
+RESPONSE 9:
+    
+
+
+deleteStringList does not delete the StringList struct that getRest
+creates.  Modify deleteStringList so it also deletes this structure.
+Give your revised definition here:
+
+RESPONSE 10:
+
+
+Recompile, show your LEAK SUMMARY table here:
+
+RESPONSE 11:
+==12754== LEAK SUMMARY:
+==12754==    definitely lost: 1,436 bytes in 182 blocks
+==12754==    indirectly lost: 0 bytes in 0 blocks
+==12754==      possibly lost: 0 bytes in 0 blocks
+==12754==    still reachable: 0 bytes in 0 blocks
+==12754==         suppressed: 0 bytes in 0 blocks
+==12754== 
+
+
+
+
+OK - now let's think about another aspect to what this function could
+do: should deleteStringList also delete the data (the strings) the
+list holds?  Notice that this is a little problematic as allStrings
+shares contents with boththe evenStrings list and the oddStrings list.
+
+Define deleteStringList so it also deletes the strings contained in
+the list, not just the list structure.  Recompile, show your LEAK
+SUMMARY table here:
+
+RESPONSE 12:
+
+==15245== LEAK SUMMARY:
+==15245==    definitely lost: 1,412 bytes in 179 blocks
+==15245==    indirectly lost: 0 bytes in 0 blocks
+==15245==      possibly lost: 0 bytes in 0 blocks
+==15245==    still reachable: 0 bytes in 0 blocks
+==15245==         suppressed: 0 bytes in 0 blocks
+
+Does this change cause other problems in the code (e.g. unintended
+		output, or read/write errors reported by valgrind?)
+
+
+RESPONSE 13:
+
+
+You may find memory is still being leaked.  Do your best to get down
+to zero memory leaks.  If you have not eliminated the leaks by the
+endpoint of the lab, give your last LEAK SUMMARY report, zip and
+submit.   Also be sure to commit and push to your Bitbucket repo.
+
+RESPONSE 14:
+
+
+That's it - well done!
+
+------------------------------------------------------------------------
+END
+------------------------------------------------------------------------
